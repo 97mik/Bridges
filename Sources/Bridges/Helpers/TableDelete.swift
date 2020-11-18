@@ -13,8 +13,8 @@ extension Table {
         SwifQL
             .delete(from: Self.table)
             .where(`where`)
-            .returning
-            .asterisk
+//            .returning
+//            .asterisk
     }
     
     // MARK: Standalone

@@ -17,8 +17,8 @@ extension Table {
             )
             .values
             .values(items.map { $0.1 })
-            .returning
-            .asterisk
+//            .returning
+//            .asterisk
     }
     
     // MARK: Standalone
@@ -46,11 +46,12 @@ extension Table {
     ) -> EventLoopFuture<Self> {
         buildInsertQuery(schema: schema, items: allColumns())
             .execute(on: db, on: container)
-            .all(decoding: Self.self)
-            .flatMapThrowing { rows in
-                guard let row = rows.first else { throw BridgesError.failedToDecodeWithReturning }
-                return row
-            }
+            .transform(to: self)
+//            .all(decoding: Self.self)
+//            .flatMapThrowing { rows in
+//                guard let row = rows.first else { throw BridgesError.failedToDecodeWithReturning }
+//                return row
+//            }
     }
     
     // MARK: On connection
@@ -65,10 +66,11 @@ extension Table {
     
     private func _insert(schema: String?, on conn: BridgeConnection) -> EventLoopFuture<Self> {
         let query = buildInsertQuery(schema: schema, items: allColumns())
-        return conn.query(sql: query, decoding: Self.self).flatMapThrowing { rows in
-            guard let row = rows.first else { throw BridgesError.failedToDecodeWithReturning }
-            return row
-        }
+        return conn.query(sql: query, decoding: Self.self).transform(to: self)
+//            .flatMapThrowing { rows in
+//            guard let row = rows.first else { throw BridgesError.failedToDecodeWithReturning }
+//            return row
+//        }
     }
 }
 

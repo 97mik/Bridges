@@ -15,8 +15,8 @@ extension Table {
             .update(Self.table)
             .set[items: items.map { Path.Column($0.name) == $0.value }]
             .where(`where`)
-            .returning
-            .asterisk
+//            .returning
+//            .asterisk
     }
     
     // MARK: Standalone
@@ -79,11 +79,12 @@ extension Table {
         }
         return buildUpdateQuery(items: items.0, where: items.1 == items.2)
             .execute(on: db, on: container)
-            .all(decoding: Self.self)
-            .flatMapThrowing { rows in
-                guard let row = rows.first else { throw BridgesError.failedToDecodeWithReturning }
-                return row
-            }
+            .transform(to: self)
+//            .all(decoding: Self.self)
+//            .flatMapThrowing { rows in
+//                guard let row = rows.first else { throw BridgesError.failedToDecodeWithReturning }
+//                return row
+//            }
     }
     
     public func update(
@@ -93,11 +94,12 @@ extension Table {
     ) -> EventLoopFuture<Self> {
         buildUpdateQuery(items: allColumns(), where: predicates)
             .execute(on: db, on: container)
-            .all(decoding: Self.self)
-            .flatMapThrowing { rows in
-                guard let row = rows.first else { throw BridgesError.failedToDecodeWithReturning }
-                return row
-            }
+            .transform(to: self)
+//            .all(decoding: Self.self)
+//            .flatMapThrowing { rows in
+//                guard let row = rows.first else { throw BridgesError.failedToDecodeWithReturning }
+//                return row
+//            }
     }
     
     // MARK: On connection
@@ -154,10 +156,11 @@ extension Table {
             return conn.eventLoop.makeFailedFuture(BridgesError.valueIsNilInKeyColumnUpdateIsImpossible)
         }
         let query = buildUpdateQuery(items: items.0, where: items.1 == items.2)
-        return conn.query(sql: query, decoding: Self.self).flatMapThrowing { rows in
-            guard let row = rows.first else { throw BridgesError.failedToDecodeWithReturning }
-            return row
-        }
+        return conn.query(sql: query, decoding: Self.self).transform(to: self)
+//            .flatMapThrowing { rows in
+//            guard let row = rows.first else { throw BridgesError.failedToDecodeWithReturning }
+//            return row
+//        }
     }
     
     public func update(on conn: BridgeConnection, where predicates: SwifQLable) -> EventLoopFuture<Void> {
